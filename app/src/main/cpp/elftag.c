@@ -208,12 +208,12 @@ static int get_64bit_section_headers(FILE *handle) {
         }
         switch (shdr64.sh_type) {
             case SHT_DYNAMIC:
-                memcpy(&shdrDynamic32, &shdr64, sizeof(shdr64));
+                memcpy(&shdrDynamic64, &shdr64, sizeof(shdr64));
                 getDynamic = JNI_TRUE;
                 break;
             case SHT_STRTAB:
                 if (shdr64.sh_flags == SHF_ALLOC) {
-                    memcpy(&shdrDynstr32, &shdr64, sizeof(shdr64));
+                    memcpy(&shdrDynstr64, &shdr64, sizeof(shdr64));
                     getDynstr = JNI_TRUE;
                 }
                 break;
@@ -379,7 +379,7 @@ static int process_64bit_dyn_tag(const char *file_name) {
     FILE *handle = fopen(file_name, "r+");
     fseek(handle, shdrDynamic64.sh_offset + dynTableOffset, SEEK_SET);
     size_t byteCount = shdrDynamic64.sh_entsize / 2;
-    int buf = DT_NEEDED;
+    int64_t buf = DT_NEEDED;
     // write d_tag
     if (fwrite(&buf, 1, byteCount, handle) != byteCount) {
         fprintf(stdout, "Fail to write d_tag!\n");
