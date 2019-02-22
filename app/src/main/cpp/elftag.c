@@ -66,12 +66,19 @@ static int64_t dynTableOffset = -1;
  */
 static int64_t dynstrTableOffset = -1;
 
+/**
+ * option - whether revert modification to DEBUG tag or not
+ */
+static int do_revert = JNI_FALSE;
 
 static void usage(FILE *stream) {
-    fprintf(stream, "usage: elftag <elffile>\n");
+    fprintf(stream, "usage: elftag [option] <elffile>\n");
     fprintf(stream,
-            " update dynamic section tag of DEBUG to NEEDED and set its value to %s\n",
+            " modify dynamic section tag of DEBUG to NEEDED and set its value to %s\n",
             SO_NAME_DST);
+    fprintf(stream, " Options are:\n");
+    fprintf(stream, "  -r        Revert modification to DEBUG tag\n");
+    fprintf(stream, "  -h        Display this information\n");
 }
 
 #pragma clang diagnostic push
@@ -280,13 +287,21 @@ static int get_32bit_dynamic_sections(const char *file_name, FILE *handle) {
                 if (!strcmp(dynstr, SO_NAME_SRC)) {
                     dynstrTableOffset = dyn.d_un.d_val;
                 } else if (!strcmp(dynstr, SO_NAME_DST)) {
-                    fprintf(stdout, "Already processed!\n");
-                    dynTableOffset = i;
-                    return JNI_FALSE;
+                    if (do_revert) {
+                        dynTableOffset = i;
+                    } else {
+                        fprintf(stdout, "Already processed!\n");
+                        return JNI_FALSE;
+                    }
                 }
                 break;
             case DT_DEBUG:
-                dynTableOffset = i;
+                if (do_revert) {
+                    fprintf(stdout, "No need to revert!\n");
+                    return JNI_FALSE;
+                } else {
+                    dynTableOffset = i;
+                }
                 break;
             default:
                 break;
@@ -322,13 +337,21 @@ static int get_64bit_dynamic_sections(const char *file_name, FILE *handle) {
                 if (!strcmp(dynstr, SO_NAME_SRC)) {
                     dynstrTableOffset = dyn.d_un.d_val;
                 } else if (!strcmp(dynstr, SO_NAME_DST)) {
-                    fprintf(stdout, "Already processed!\n");
-                    dynTableOffset = i;
-                    return JNI_FALSE;
+                    if (do_revert) {
+                        dynTableOffset = i;
+                    } else {
+                        fprintf(stdout, "Already processed!\n");
+                        return JNI_FALSE;
+                    }
                 }
                 break;
             case DT_DEBUG:
-                dynTableOffset = i;
+                if (do_revert) {
+                    fprintf(stdout, "No need to revert!\n");
+                    return JNI_FALSE;
+                } else {
+                    dynTableOffset = i;
+                }
                 break;
             default:
                 break;
@@ -355,13 +378,13 @@ static int process_32bit_dyn_tag(const char *file_name) {
     FILE *handle = fopen(file_name, "r+");
     fseek(handle, shdrDynamic32.sh_offset + dynTableOffset, SEEK_SET);
     size_t byteCount = shdrDynamic32.sh_entsize / 2;
-    int buf = DT_NEEDED;
+    int buf = do_revert ? DT_DEBUG : DT_NEEDED;
     // write d_tag
     if (fwrite(&buf, 1, byteCount, handle) != byteCount) {
         fprintf(stdout, "Fail to write d_tag!\n");
         ret = JNI_FALSE;
     } else {
-        buf = dynstrTableOffset + SO_NAME_OFFSET;
+        buf = do_revert ? 0 : dynstrTableOffset + SO_NAME_OFFSET;
         // write d_val
         if (fwrite(&buf, 1, byteCount, handle) != byteCount) {
             fprintf(stdout, "Fail to write d_val!\n");
@@ -382,13 +405,13 @@ static int process_64bit_dyn_tag(const char *file_name) {
     FILE *handle = fopen(file_name, "r+");
     fseek(handle, shdrDynamic64.sh_offset + dynTableOffset, SEEK_SET);
     size_t byteCount = shdrDynamic64.sh_entsize / 2;
-    int64_t buf = DT_NEEDED;
+    int64_t buf = do_revert ? DT_DEBUG : DT_NEEDED;
     // write d_tag
     if (fwrite(&buf, 1, byteCount, handle) != byteCount) {
         fprintf(stdout, "Fail to write d_tag!\n");
         ret = JNI_FALSE;
     } else {
-        buf = dynstrTableOffset + SO_NAME_OFFSET;
+        buf = do_revert ? 0 : dynstrTableOffset + SO_NAME_OFFSET;
         // write d_val
         if (fwrite(&buf, 1, byteCount, handle) != byteCount) {
             fprintf(stdout, "Fail to write d_val!\n");
@@ -433,10 +456,30 @@ static int process_file(const char *file_name) {
 
 #pragma clang diagnostic pop
 
+static int parse_args(int argc, char **argv) {
+    if (argc < 2) {
+        return JNI_FALSE;
+    }
+    int ch;
+    while ((ch = getopt(argc, argv, "rh")) != EOF) {
+        switch (ch) {
+            case 'r':
+                do_revert = JNI_TRUE;
+                fprintf(stdout, "Revert modification to DEBUG tag\n");
+                break;
+            case 'h':
+                return JNI_FALSE;
+            default:
+                break;
+        }
+    }
+    return JNI_TRUE;
+}
+
 int main(int argc, char **argv) {
     int ret = JNI_ERR;
-    if (argc == 2) {
-        if (process_file(argv[1])) {
+    if (parse_args(argc, argv)) {
+        if (process_file(argv[argc - 1])) {
             fprintf(stdout, "Success!\n");
             ret = JNI_OK;
         }
