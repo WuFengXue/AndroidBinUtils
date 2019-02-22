@@ -69,6 +69,9 @@ static int64_t dynstrTableOffset = -1;
 
 static void usage(FILE *stream) {
     fprintf(stream, "usage: elftag <elffile>\n");
+    fprintf(stream,
+            " update dynamic section tag of DEBUG to NEEDED and set its value to %s\n",
+            SO_NAME_DST);
 }
 
 #pragma clang diagnostic push
