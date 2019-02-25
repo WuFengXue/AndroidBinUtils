@@ -457,7 +457,7 @@ static int process_file(const char *file_name) {
 #pragma clang diagnostic pop
 
 static int parse_args(int argc, char **argv) {
-    if (argc < 2) {
+    if (argc < 2 || (*argv[argc - 1] == '-')) {
         return JNI_FALSE;
     }
     int ch;
