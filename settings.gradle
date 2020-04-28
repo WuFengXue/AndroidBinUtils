@@ -1,3 +1,4 @@
 include ':app'
 include ':elftag'
 include ':fixelfsection'
+include ':sofixer'

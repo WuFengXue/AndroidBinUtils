@@ -21,7 +21,7 @@ usage: elftag [option] <elffile>
 
 # FixElfSection
 
-* 用于dump elf文件后的section修复，修复后可以再IDA中直接查看
+* 用于dump elf文件后的section修复，修复后可以在IDA中直接查看
 
 * [FixElfSection](https://github.com/WangYinuo/FixElfSection) 的 AndroidStudio 实现
 
@@ -36,4 +36,30 @@ usage: elftag [option] <elffile>
 ```shell
 usage: FixElfSection <elffile>
  fix.so will be created in the same directory
+```
+
+# SoFixer
+
+* so修复相关
+
+* [SoFixer](https://github.com/F8LEFT/SoFixer) 的 AndroidStudio 实现
+
+## reference
+
+* [简单粗暴的so加解密实现](https://bbs.pediy.com/thread-191649.htm)
+
+* [ELF section修复的一些思考](https://bbs.pediy.com/thread-192874.htm=%3E)
+
+## usage
+
+```shell
+SoFixer v0.2 author F8LEFT(currwin)
+Useage: SoFixer <option(s)> -s sourcefile -o generatefile
+ try rebuild shdr with phdr
+ Options are:
+  -d --debug                                 Show debug info
+  -m --memso memBaseAddr(16bit format)       Source file is dump from memory from address x
+  -s --source sourceFilePath                 Source file path
+  -o --output generateFilePath               Generate file path
+  -h --help                                  Display this information
 ```
