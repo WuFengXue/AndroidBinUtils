@@ -1,4 +1,14 @@
 
+# 说明 / intro
+
+* 该工程下的工具主要运行在安卓手机上，请将工具用 adb push 到手机后使用
+
+* These bin utils are work only on android devices, please push to your devices first (use adb push cmd)
+
+* 发布的版本只提供了 armeabi-v7a 架构的版本，如果需要其他版本，请自行编译
+
+* Release versions only contain armeabi-v7a, if you need other arch, please compile by yourself
+
 # elftag
 
 * modify app_process32(64) to load third so lib
