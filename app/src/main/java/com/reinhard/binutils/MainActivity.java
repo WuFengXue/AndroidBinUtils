@@ -1,4 +1,4 @@
-package com.reinhard.elftag;
+package com.reinhard.binutils;
 
 import android.os.Bundle;
 
