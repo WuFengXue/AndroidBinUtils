@@ -18,3 +18,22 @@ usage: elftag [option] <elffile>
   -r        Revert modification to DEBUG tag
   -h        Display this information
 ```
+
+# FixElfSection
+
+* 用于dump elf文件后的section修复，修复后可以再IDA中直接查看
+
+* [FixElfSection](https://github.com/WangYinuo/FixElfSection) 的 AndroidStudio 实现
+
+## reference
+
+* [ELF文件格式学习，section修复](https://blog.csdn.net/yi_nuo_wang/article/details/72626846)
+
+* [Android so库文件的区节section修复代码分析](https://blog.csdn.net/qq1084283172/article/details/78818917)
+
+## usage
+
+```shell
+usage: FixElfSection <elffile>
+ fix.so will be created in the same directory
+```
